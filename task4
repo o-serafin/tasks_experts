@@ -1,0 +1,24 @@
+1) nproc
+2) echo 'Total disc space in kB' && df  > disc.txt && tr -s ' ' < disc.txt | cut -d " " -f 2 > mm.txt && sed -i '1d' mm.txt && cat mm.txt | awk '{ sum+=$1 } END { print sum }'
+3) echo ‘Total RAM memory in kB’ && grep MemTotal /proc/meminfo
+4) last
+
+import smtplib
+from email.message import EmailMessage
+
+def send_email_gmail(subject, message, destination):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    #This is where you would replace your password with the app password
+    server.login('account@gmail.com', 'App_Password')
+
+    msg = EmailMessage()
+
+    message = f'{message}\n'
+    msg.set_content(message)
+    msg['Subject'] = subject
+    msg['From'] = 'me123@gmail.com'
+    msg['To'] = destination
+    server.send_message(msg)
+
+send_email_gmail('Test subject', 'This is the message', 'to_email@email.com')
