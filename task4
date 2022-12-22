@@ -1,24 +1,18 @@
-1) nproc
-2) echo 'Total disc space in kB' && df  > disc.txt && tr -s ' ' < disc.txt | cut -d " " -f 2 > mm.txt && sed -i '1d' mm.txt && cat mm.txt | awk '{ sum+=$1 } END { print sum }'
-3) echo ‘Total RAM memory in kB’ && grep MemTotal /proc/meminfo
-4) last
+***In crintab -e***
+* * * * * /hoem/olaf/task_4.sh
 
-import smtplib
-from email.message import EmailMessage
 
-def send_email_gmail(subject, message, destination):
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    #This is where you would replace your password with the app password
-    server.login('account@gmail.com', 'App_Password')
+#!/bin/bash
 
-    msg = EmailMessage()
+var1=$(nproc)
+var2=$(df > disc.txt && tr -s ' ' < disc.txt | cut -d " " -f 2 > mm.txt && sed>
+var3=$(grep MemTotal /proc/meminfo | tr -s ' ' | cut -d " " -f 2)
+var4=$(last > mm.txt && sed -i '$ d' mm.txt && cat mm.txt | tr -s ' ' | cut -d>
+var5=$(ps aux | grep -e perl -e python | wc -l)
 
-    message = f'{message}\n'
-    msg.set_content(message)
-    msg['Subject'] = subject
-    msg['From'] = 'me123@gmail.com'
-    msg['To'] = destination
-    server.send_message(msg)
-
-send_email_gmail('Test subject', 'This is the message', 'to_email@email.com')
+echo "Number of cores: $var1" > mm.txt
+echo "Total disc space: $var2 kB" >> mm.txt
+echo "Total RAM: $var3 kB" >> mm.txt
+echo "Last logged users: $var4" >> mm.txt
+echo "Num of active Perl/Python processes: $var5" >> mm.txt
+cat mm.txt | ssmtp -vvv olaf.serafin305@gmail.com
