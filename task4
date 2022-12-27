@@ -1,18 +1,50 @@
-***In crintab -e***
-* * * * * /hoem/olaf/task_4.sh
-
-
 #!/bin/bash
 
-var1=$(nproc)
-var2=$(df > disc.txt && tr -s ' ' < disc.txt | cut -d " " -f 2 > mm.txt && sed>
-var3=$(grep MemTotal /proc/meminfo | tr -s ' ' | cut -d " " -f 2)
-var4=$(last > mm.txt && sed -i '$ d' mm.txt && cat mm.txt | tr -s ' ' | cut -d>
-var5=$(ps aux | grep -e perl -e python | wc -l)
+######################################
+#   In crontab -e                    #
+#   * * * * * /home/olaf/task_4.sh   #
+######################################
 
-echo "Number of cores: $var1" > mm.txt
-echo "Total disc space: $var2 kB" >> mm.txt
-echo "Total RAM: $var3 kB" >> mm.txt
-echo "Last logged users: $var4" >> mm.txt
-echo "Num of active Perl/Python processes: $var5" >> mm.txt
-cat mm.txt | ssmtp -vvv olaf.serafin305@gmail.com
+t=4
+while [ $t -gt 2 ];
+do
+echo “Select on or many of options:”
+echo “1 .Number of CPU Cores”
+echo “2 .Disk space”
+echo “3 .Size of RAM”
+echo “4 .Information about the last users logged on the host”
+echo “5 .Calculate the number of active python/perl process”
+echo “6 .Send all the info on email”
+echo “CTRL+C to leave the program”
+
+var1=$(nproc)
+var2=$(df > disc.txt && tr -s ' ' < disc.txt | cut -d " " -f 2 > mm.txt && sed -i '1d' mm.txt && cat mm.txt | awk '{ sum+=$1 } END { print sum }')
+var3=$(grep MemTotal /proc/meminfo | tr -s ' ' | cut -d " " -f 2)
+var4=$(last > mm.txt && sed -i '$ d' mm.txt && cat mm.txt | tr -s ' ' | cut -d " " -f 1)
+var5=$(ps aux | grep -e /usr/bin/perl -e /usr/bin/python | wc -l)
+
+read l
+for (( i=0; i<${#l}; i++ ));
+do
+letter="${l:$i:1}"
+if [ $letter == "1" ]
+then
+echo "Number of cores: $var1"
+elif [ $letter == "2" ]
+then
+echo "Total memory: $var2 kB"
+elif [ $letter == "3" ]
+then
+echo "RAM memory: $var3 kB"
+elif [ $letter == "4" ]
+then
+echo "Last users: $var4"
+elif [ $letter == "5" ]
+then
+echo "Active perl/python processes: $var5"
+elif [ $letter == "6" ]
+then
+echo -e "Number of cores: $var1\nTotal memory: $var2 kB\nRAM memory: $var3 kB\nLast users: $var4\nActive perl/python processes: $var5" | ssmtp -vvv olaf.serafin305@gmail.com
+fi
+done
+done
