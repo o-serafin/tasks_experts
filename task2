@@ -1,4 +1,4 @@
-ps -u $USER -o pid
+ps aux | grep "^$USER" | awk '{print $2}'
 
 
 ifconfig | grep "inet6 " | awk '{ print $2 }' > test.txt && ifconfig | grep "inet " | awk '{print $2}' >> test.txt && sort test.txt
