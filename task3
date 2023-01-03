@@ -1,1 +1,2 @@
-wget http://www.almhuette-raith.at/apache-log/access.log && cat access.log | cut -d " " -f 1 | sort | uniq -c
+wget http://www.almhuette-raith.at/apache-log/access.log 
+cat access.log | cut -d " " -f 1 | sort | uniq -c | awk '{print $2": " $1}' > ip_adresses.txt
