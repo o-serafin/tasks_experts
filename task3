@@ -1,2 +1,3 @@
 wget http://www.almhuette-raith.at/apache-log/access.log 
 cat access.log | cut -d " " -f 1 | sort | uniq -c | awk '{print $2"     count: " $1}' > ip_adresses.txt
+cat ip_adresses.txt
