@@ -1,0 +1,46 @@
+import psycopg2
+
+class DataBasePool:
+
+    """Classic Singleton __new__ function"""
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(DataBasePool, cls).__new__(cls)
+        return cls.instance
+
+    """Creating an instance"""
+    def __init__(self, min_num: int, max_num: int, **kwargs):
+        defaultKwargs = { 'host': '127.0.0.1', 'port': '5432', 'password': '1234', 'database': 'test_database', 'user': 'postgres' }
+        kwargs = { **defaultKwargs, **kwargs }
+
+        self.min_num = min_num
+        self.max_num = max_num
+
+        self.pool = []
+        self.in_use = 0
+
+        for i in range(self.min_num):
+            connection = psycopg2.connect(**kwargs)
+            self.pool.append(connection)
+
+db_pool1 = DataBasePool(1,10)
+
+
+""", user='postgres',
+                                          password='1234',
+                                          database='test_database',
+                                          host='127.0.0.1',
+                                          port = '5432'"""
+
+db_pool = db_pool1.pool[0]
+if(db_pool):
+    print('succes')
+    ps_cursor = db_pool.cursor()
+    ps_cursor.execute("select Hospital_Name, Doctor_Name from Doctor d inner join Hospital h on h.Hospital_id = d.hospital_id;")
+    mobile_records = ps_cursor.fetchall() #content of a table here
+
+    print("Displaying rows from doctor table")
+    for row in mobile_records:
+        print(row)
+
+    ps_cursor.close()
