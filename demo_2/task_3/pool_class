@@ -1,0 +1,85 @@
+import psycopg2
+import threading
+import sys
+import logging
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+class DataBasePool:
+    #Classic Singleton __new__ function
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(DataBasePool, cls).__new__(cls)
+        return cls.instance
+
+
+    #Creating an instance
+    def __init__(self, min_num: int, max_num: int, **kwargs):
+        defaultKwargs = { 'host': 'localhost', 'port': '5432', 'password': 'postgres', 'database': 'postgres', 'user': 'postgres' }
+        self.kwargs = { **defaultKwargs, **kwargs }
+
+        if min_num < 0 or min_num > max_num:
+            raise ValueError('Invalid initializing values')
+
+        self.min_num = min_num
+        self.max_num = max_num
+
+        self.pool = []
+        self.in_use = []
+
+        for i in range(self.min_num):
+            connection = psycopg2.connect(**self.kwargs)
+            self.pool.append(connection)
+
+
+    # Decorator function for thread locking
+    def locking(fn):
+        lock = threading.Lock()
+        def wrapper(*args, **kwargs):
+            lock.acquire()
+            try:
+                return fn(*args, **kwargs)
+            finally:
+                lock.release()
+        return wrapper
+
+
+    @locking
+    def get_connection(self):
+        if (len(self.in_use) + len(self.pool)) < self.max_num:
+            logging.info("Connection taken from pool")
+            if self.pool != []:
+                connection = self.pool.pop()
+            else:
+                connection = psycopg2.connect(**self.kwargs)
+            self.in_use.append(connection)
+            return connection
+        logging.info("All connections are occupied")
+        return None
+        
+
+    @locking
+    def return_connection(self, connection):
+        if connection not in self.used:
+            raise ConnectionError('Connection does not come from this pool')
+        self.pool.append(connection)
+        self.in_use.remove(connection)
+        logging.info("Connection returned to pool")
+
+
+    @locking
+    def close_pool(self):
+        for connection in self.pool:
+            connection.close()
+        for connection in self.in_use:
+            connection.close()
+        self.pool = []
+        self.used = []
+        logging.info("Pool was closed")
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, type, value, traceback):
+        self.close_pool()
+        return isinstance(value, TypeError)
