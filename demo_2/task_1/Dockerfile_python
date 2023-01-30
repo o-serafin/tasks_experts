@@ -1,7 +1,9 @@
 FROM ubuntu
+ENV use_name olafs
+ENV work_dir /new_dir
 RUN apt-get update
 RUN apt-get install python3 -y
-USER olafs
-WORKDIR /new_dir
-COPY test_app.py .
+USER $use_name
+WORKDIR $work_dir
+COPY app.py $work_dir
 CMD ["python3","app.py"]
