@@ -1,7 +1,7 @@
 #commands should be used in the following order
 
-sudo docker build -t my_image . #image created
-sudo docker run --name=first_app my_image #running container called first_app based on my_image image
-sudo docker stop first_app
-sudo docker rm first_app
-sudo docker rmi my_image
+docker build -t my_image . #image created
+docker run --name=first_app my_image #running container called first_app based on my_image image
+docker stop first_app
+docker rm first_app
+docker rmi my_image
