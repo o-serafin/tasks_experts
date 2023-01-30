@@ -8,7 +8,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 #DataBasePool class provides connection to postgres database, and allows to manage connections pool
 class DataBasePool:
     
-    #Classic Singleton __new__ function
+    """Classic Singleton __new__ function"""
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
             cls.instance = super(DataBasePool, cls).__new__(cls)
@@ -20,13 +20,14 @@ class DataBasePool:
        Defaulf parameters are: 'host': 'localhost', 'port': '5432', 'password': 'postgres', 'database': 'postgres', 'user': 'postgres'
        You can specify which of them need to be changed
     Parameters:
-        - min_num - number of connections
+        - min_num - number of initial connections
         - max_num - maximal number of connections in pool
-        - password - postgres password
-        - user - postgres user
-        - database - postgres database name
         - host - postgres host
         - port - postgres port
+        - password - postgres password
+        - database - postgres database name
+        - user - postgres user
+        
     Example:
            db_pool = DataBasePool(
                 5,
@@ -53,7 +54,7 @@ class DataBasePool:
             self.pool.append(connection)
 
 
-    # Decorator function for thread locking
+    """Decorator function for thread locking"""
     def locking(fn):
         lock = threading.Lock()
         def wrapper(*args, **kwargs):
@@ -64,7 +65,7 @@ class DataBasePool:
                 lock.release()
         return wrapper
 
-    #Function returns us free connection from the pool.
+    """Function returns us free connection from the pool."""
     @locking
     def get_connection(self):
         if (len(self.in_use) + len(self.pool)) < self.max_num:
@@ -90,7 +91,7 @@ class DataBasePool:
         self.in_use.remove(connection)
         logging.info("Connection returned to pool")
 
-    #Closing all exisitng connections in a pool.
+    """Closing all exisitng connections in a pool."""
     @locking
     def close_pool(self):
         for connection in self.pool:
@@ -101,7 +102,7 @@ class DataBasePool:
         self.used = None
         logging.info("Pool was closed")
     
-    # methods that allow us to use context manager
+    """methods that allow us to use context manager"""
     def __enter__(self):
         return self
         
